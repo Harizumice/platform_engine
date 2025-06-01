@@ -33,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"Sprite3",
-    "path":"sprites/Sprite3/Sprite3.yy",
+    "name":"spr_icon_camera",
+    "path":"sprites/spr_icon_camera/spr_icon_camera.yy",
   },
   "spriteMaskId":null,
   "visible":false,

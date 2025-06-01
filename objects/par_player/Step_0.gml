@@ -8,8 +8,14 @@ scr_getcontrols();
 // Diretion
 movedir = input_right - input_left;
 
-// Get Xspeed
-xspd = movedir * movespd;
+// Get Xspeed2
+run_type = input_run;
+xspd = movedir * movespd[run_type];
+
+// Get the face direction
+if(movedir != 0){ 
+	face  = movedir;
+}
 
 // X Collision
 var _subpixel = 0.5;
@@ -34,7 +40,7 @@ if(coyote_hang_timer > 0){
 	coyote_hang_timer --;
 } else {
 	// Apply gravity
-	yspd += grav;
+	yspd += grav*fall;
 	scr_set_on_ground(false);
 }
 
@@ -43,7 +49,10 @@ if(yspd > termvel){ yspd = termvel; }
 
 // Reset the jumps
 if(ground){
-	jump_count = 0;
+	if(jump_count != 0){
+		scr_gummy(1.3,0.7);
+		jump_count = 0;
+	}
 	jump_hold_timer = 0;
 	coyote_jump_timer = coyote_jump_frames;
 } else {
@@ -73,13 +82,17 @@ if(input_jump_buffered && jump_count < jump_max){
 // Cut the Jump
 if(!input_jump){
 	jump_hold_timer = 0;
+} else {
+	fall = 1; 
 }
 
 // Jump Based in the timer/holding the buttom
-if(jump_hold_timer > 9){
+if(jump_hold_timer > 0){
 	// Constantly set Yspeed to the jumping speed
 	yspd = jspd[jump_count-1];
 	jump_hold_timer --;
+} else {
+	fall = lerp(fall, fallspd, fallacc); 
 }
 
 // Y Collision
@@ -107,4 +120,33 @@ if(yspd >= 0  && place_meeting(x, y+1, par_solid)){
 
 // Move Y
 y += yspd;
+#endregion
+
+#region /// Control Sprites
+// Walking && Running
+if(ground){
+	if(abs(xspd) > 0 && abs(xspd) < movespd[1]-1){ 
+		ang  -= face * (grav*2);
+		action = "walk"; 
+	}	
+	if(abs(xspd) >= movespd[1]){ 
+		ang  -= face * (grav*3);
+		action = "run"; 
+	}
+}
+// Idle
+if(xspd == 0){ 
+	ang = lerp(ang, 0, fallacc*2);	
+	action = "idle"; 
+}
+// Jump
+if(!ground){ 
+	ang  += face * grav;
+	action = "jump"; 
+}
+
+// Squash and Strech
+xscale = lerp(xscale, 1, fallacc/2);
+yscale = lerp(yscale, 1, fallacc/2);
+ang    = clamp(ang,-12,12);
 #endregion
