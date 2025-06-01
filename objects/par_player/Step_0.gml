@@ -30,7 +30,13 @@ x += xspd;
 
 #region /// Y movement
 // Gravity
-yspd += grav;
+if(coyote_hang_timer > 0){
+	coyote_hang_timer --;
+} else {
+	// Apply gravity
+	yspd += grav;
+	scr_set_on_ground(false);
+}
 
 // Cap Falling Speed
 if(yspd > termvel){ yspd = termvel; }
@@ -39,9 +45,12 @@ if(yspd > termvel){ yspd = termvel; }
 if(ground){
 	jump_count = 0;
 	jump_hold_timer = 0;
+	coyote_jump_timer = coyote_jump_frames;
 } else {
-	// if the player is	in the air, make sure they can't do an extra jump
-	if(jump_count <= 0){ jump_count = 1; }
+	// OPTIONAL if the player is	in the air, make sure they can't do an extra jump
+	if(jump_count <= 0 && coyote_jump_timer <= 0){ jump_count = 1; }
+	coyote_jump_timer --;
+	coyote_hang_timer = 0;
 }
 
 // Initialize Jump
@@ -55,6 +64,10 @@ if(input_jump_buffered && jump_count < jump_max){
 	
 	// Set the jump timer 
 	jump_hold_timer = jump_hold_frames[jump_count-1];
+	
+	// Tell ourself we're no longer on the ground
+	scr_set_on_ground(false);
+	coyote_jump_timer = 0;
 }
 
 // Cut the Jump
@@ -89,8 +102,8 @@ if(place_meeting(x, y+yspd, par_solid)){
 
 // set if i'm on the ground
 if(yspd >= 0  && place_meeting(x, y+1, par_solid)){
-	ground = true;
-} else { ground = false; }
+	scr_set_on_ground(true);
+}
 
 // Move Y
 y += yspd;

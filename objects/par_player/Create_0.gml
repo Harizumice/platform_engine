@@ -1,5 +1,15 @@
 /// @description Variables
 
+function scr_set_on_ground(_val = true){
+	if(_val){
+		ground = true;
+		coyote_hang_timer = coyote_hang_frames;
+	} else {
+		ground = false;
+		coyote_hang_timer = 0;
+	}
+}
+
 // Setup Controls
 scr_control_setup();
 
@@ -20,3 +30,11 @@ jump_hold_timer  = 0;	   // How so much time you pulsed the jump
 jump_hold_frames[0] = 18;  // The number of frames you can push the jump 1
 jump_hold_frames[1] = 12;  // The number of frames you can push the jump 2
 ground			 = true;   // The player is on ground or dont
+
+// Coyote time
+coyote_hang_frames = 8;
+coyote_hang_timer  = 0;
+
+// Jump buffer timer
+coyote_jump_frames = 12;
+coyote_jump_timer  = 0;
