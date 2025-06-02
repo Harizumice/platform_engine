@@ -23,7 +23,9 @@ function scr_getcontrols() {
 	// Jump Key Buffers
 	if(input_jump_pressed){
 		input_jump_buffer_timer = buffer_time;
-		scr_gummy(0.64,1.45);
+		
+		// Squash Effect
+		if(jump_count < jump_max){ scr_gummy(0.64,1.45); }
 	}
 	
 	if(input_jump_buffer_timer > 0){

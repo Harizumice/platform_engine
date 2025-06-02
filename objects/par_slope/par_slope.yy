@@ -1,15 +1,18 @@
 {
   "$GMObject":"",
-  "%Name":"par_solid",
+  "%Name":"par_slope",
   "eventList":[],
   "managed":true,
-  "name":"par_solid",
+  "name":"par_slope",
   "overriddenProperties":[],
   "parent":{
     "name":"Objects",
     "path":"folders/Objects.yy",
   },
-  "parentObjectId":null,
+  "parentObjectId":{
+    "name":"par_solid",
+    "path":"objects/par_solid/par_solid.yy",
+  },
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
@@ -28,8 +31,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_floor_test1",
-    "path":"sprites/spr_floor_test1/spr_floor_test1.yy",
+    "name":"spr_slope_test1",
+    "path":"sprites/spr_slope_test1/spr_slope_test1.yy",
   },
   "spriteMaskId":null,
   "visible":true,

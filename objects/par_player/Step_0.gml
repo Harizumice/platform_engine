@@ -20,14 +20,33 @@ if(movedir != 0){
 // X Collision
 var _subpixel = 0.5;
 if(place_meeting(x + xspd, y, par_solid)){
-	// Scoot up to wall precisely
-	var _pixelcheck = _subpixel * sign(xspd);
-	while(!place_meeting(x + _pixelcheck, y, par_solid)){
-		x += _pixelcheck;
-	}
+	// First Check if there is a slope to go up
+	if(!place_meeting(x + xspd, y - abs(xspd)-1, par_solid)){
+		while (place_meeting(x + xspd, y, par_solid)){ y -= _subpixel; }
+	} 
+	// Next, Check for ceiling slopes, otherwise, regular collision
+	else {
+		// Ceiling slopes
+		if(!place_meeting(x + xspd, y + abs(xspd)+1, par_solid)){
+			while(place_meeting(x + xspd, y, par_solid)){ y += _subpixel; }
+		} 
+		// normal collision
+		else {
+			// Scoot up to wall precisely
+			var _pixelcheck = _subpixel * sign(xspd);
+			while(!place_meeting(x + _pixelcheck, y, par_solid)){
+				x += _pixelcheck;
+			}
 
-	// Set XSpeed to zero to "collision"
-	xspd = 0; 
+			// Set XSpeed to zero to "collision"
+			xspd = 0;
+		}
+	}
+}
+
+// Go Down Slopes
+if(yspd >= 0 && !place_meeting(x + xspd, y+1, par_solid) && place_meeting(x + xspd, y + abs(xspd)+1, par_solid)){
+	while (!place_meeting(x+xspd, y+_subpixel, par_solid)){ y += _subpixel; }
 }
 
 // Move X
@@ -97,25 +116,59 @@ if(jump_hold_timer > 0){
 
 // Y Collision
 var _subpixel = 0.5; 
-if(place_meeting(x, y+yspd, par_solid)){
-	// Scoot up to the wall precicelly
-	var _pixelcheck = _subpixel * sign(yspd);
-	while(!place_meeting(x, y+_pixelcheck, par_solid)){
-		y += _pixelcheck; 
+
+// Upwards Y Collisions (With a Ceilin Slopes)
+if(yspd < 0 && place_meeting(x, y+yspd, par_solid)){
+	/// Jump into the slope Ceilings
+	var _slope_slide = false;
+	
+	// Slide Upleft to slope	
+	if(abs(xspd) < .6 && !place_meeting(x-abs(yspd)-1, y+yspd, par_solid)){
+		while (place_meeting(x, y+yspd, par_solid)){ x --; }
+		_slope_slide = true;
 	}
 	
-	// Bonk State
-	if(yspd < 0){
-		jump_hold_timer = 0;
+	// Slide UpRight to slope	
+	if(movedir == 0 && !place_meeting(x+abs(yspd)+1, y+yspd, par_solid)){
+		while (place_meeting(x, y+yspd, par_solid)){ x ++; }
+		_slope_slide = true;
 	}
 	
-	// Set yspd to 0 to collide
-	yspd = 0;
+	// Normal Y Collision
+	if(!_slope_slide){
+		// Scoot up to the wall precicelly
+		var _pixelcheck = _subpixel * sign(yspd);
+		while(!place_meeting(x, y+_pixelcheck, par_solid)){
+			y += _pixelcheck; 
+		}
+	
+		// Bonk State 
+		if(yspd < 0){ jump_hold_timer = 0;}
+	
+		// Set yspd to 0 to collide
+		yspd = 0;
+	}
 }
 
-// set if i'm on the ground
-if(yspd >= 0  && place_meeting(x, y+1, par_solid)){
-	scr_set_on_ground(true);
+// Downwards Collisions
+if(yspd >= 0){
+	if(place_meeting(x, y+yspd, par_solid)){
+		// Scoot up to the wall precicelly
+		var _pixelcheck = _subpixel * sign(yspd);
+		while(!place_meeting(x, y+_pixelcheck, par_solid)){
+			y += _pixelcheck; 
+		}
+	
+		// Bonk State if(yspd < 0){ jump_hold_timer = 0;}
+	
+		// Set yspd to 0 to collide
+		yspd = 0;
+	}
+
+	// set if i'm on the ground
+	if(place_meeting(x, y+1, par_solid)){
+		scr_set_on_ground(true);
+	}
 }
 
 // Move Y
