@@ -18,7 +18,7 @@ if(movedir != 0){
 }
 
 // X Collision
-var _subpixel = 0.5;
+var _subpixel = .5;
 if(place_meeting(x + xspd, y, par_solid)){
 	// First Check if there is a slope to go up
 	if(!place_meeting(x + xspd, y - abs(xspd)-1, par_solid)){
@@ -78,7 +78,7 @@ if(ground){
 	// OPTIONAL if the player is	in the air, make sure they can't do an extra jump
 	if(jump_count <= 0 && coyote_jump_timer <= 0){ jump_count = 1; }
 	coyote_jump_timer -= 1;
-	//coyote_hang_timer = 0;
+	coyote_hang_timer = 0;
 }
 
 // Initialize Jump
@@ -95,7 +95,7 @@ if(input_jump_buffered && jump_count < jump_max){
 	
 	// Tell ourself we're no longer on the ground
 	scr_set_on_ground(false);
-	//coyote_jump_timer = 0;
+	coyote_jump_timer = 0;
 }
 
 // Cut the Jump
@@ -115,7 +115,7 @@ if(jump_hold_timer > 0){
 }
 
 // Y Collision
-var _subpixel = 0.5; 
+var _subpixel = 0.5;
 
 // Upwards Y Collisions (With a Ceilin Slopes)
 if(yspd < 0 && place_meeting(x, y + yspd, par_solid)){
@@ -216,7 +216,7 @@ if(instance_exists(my_floor_plat) && !place_meeting( x, y + move_plat_max_yspd, 
 // Land on the ground platform if there is one
 if(instance_exists(my_floor_plat)){
 	// Scoot up to our wall precisely
-	var _subpixel = .5;
+	var _subpixel = 0.5;
 	while(!place_meeting(x, y + _subpixel, my_floor_plat) && !place_meeting(x, y, par_solid)){ y += _subpixel; }
 
 	// Make sure we don't end up below the top of a semisolid
@@ -237,6 +237,55 @@ if(input_jump_pressed){ my_floor_plat = noone; }
 
 // Move Y
 y += yspd;
+
+/// Final moving platform collisions and movement
+
+/// X - MoveplatXspeed and collision
+
+// Get the moveplatspd
+move_plat_xspd = 0;
+if(instance_exists(my_floor_plat)){ move_plat_xspd = my_floor_plat.xspd; }
+
+// Move with moveplat Xspd
+if(place_meeting(x + move_plat_xspd, y, par_solid)){
+	// Scott up to wall precisely
+	var _subpixel = .5;
+	var _pixel_check = _subpixel * sign(move_plat_xspd);
+	while (!place_meeting(x + _pixel_check, y, par_solid)){
+		x += _pixel_check;
+	}
+	
+	// Set moveplatxpsd to 0 to finish collision
+	move_plat_xspd = 0;
+}
+
+// Moving with platform X
+x += move_plat_xspd;
+
+/// Y - Snap myself to myfloorplat if i'ts moving vertically
+if(instance_exists(my_floor_plat) && my_floor_plat.yspd != 0){	
+	if(!place_meeting( x, my_floor_plat.bbox_top, par_solid) 
+	&& my_floor_plat.bbox_top >= bbox_bottom-move_plat_max_yspd){
+		y = my_floor_plat.bbox_top;	
+	}
+
+	// Going up into a solid wall while on a semisolid platform
+	if(my_floor_plat.yspd < 0 && place_meeting(x, y + my_floor_plat.yspd, par_solid)){
+		// Get pushed down troguth the semisolid floor platform
+		if(my_floor_plat.object_index == par_semisolid_wall || object_is_ancestor(my_floor_plat.object_index, par_semisolid_wall)){
+			// Get pushed down
+			var _subpixel = .25;
+			while(place_meeting(x,y+my_floor_plat.yspd, par_solid)){ y += _subpixel; }
+			
+			// if we got pushed into a solid wall going downwards, purhs ourselfves back out
+			while(place_meeting(x, y, par_solid)){ y -= _subpixel; }
+			y = round(y);
+		}
+
+		// Cancel the my_floor_plat
+		scr_set_on_ground(false);
+	}
+}
 #endregion
 
 #region /// Control Sprites

@@ -10,9 +10,9 @@ var _target_x = xstart + lengthdir_x(radius, dir);
 var _target_y = ystart + lengthdir_y(radius, dir);
 
 // Get our Xspd and Yspd
-xspd = _target_x-x;
-yspd = _target_y-y;
+if(allow_x) { xspd = _target_x-x; }
+if(allow_y) { yspd = _target_y-y; }
 
 // Update position X and Y
-x += xspd;
-y += yspd;
+if(allow_x) { x += xspd; }
+if(allow_y) { y += yspd; }

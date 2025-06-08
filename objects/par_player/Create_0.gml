@@ -20,6 +20,7 @@ action = "idle";
 xscale = 1;
 yscale = 1;
 ang    = 0;
+depth  = -120;
 
 // Moving
 face       = 1;
