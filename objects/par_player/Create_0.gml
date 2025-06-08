@@ -6,6 +6,7 @@ function scr_set_on_ground(_val = true){
 		coyote_hang_timer = coyote_hang_frames;
 	} else {
 		ground = false;
+		my_floor_plat = noone; 
 		coyote_hang_timer = 0;
 	}
 }
@@ -56,3 +57,4 @@ coyote_jump_timer  = 0;
 // Moving Platforms
 my_floor_plat = noone;
 move_plat_xspd = 0;
+move_plat_max_yspd = termvel; // How to fast can the player follow a downwards moving platforms

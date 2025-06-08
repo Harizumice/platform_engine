@@ -13,8 +13,8 @@
     "path":"folders/Objects.yy",
   },
   "parentObjectId":{
-    "name":"par_solid",
-    "path":"objects/par_solid/par_solid.yy",
+    "name":"par_semisolid_wall",
+    "path":"objects/par_semisolid_wall/par_semisolid_wall.yy",
   },
   "persistent":false,
   "physicsAngularDamping":0.1,

@@ -77,8 +77,8 @@ if(ground){
 } else {
 	// OPTIONAL if the player is	in the air, make sure they can't do an extra jump
 	if(jump_count <= 0 && coyote_jump_timer <= 0){ jump_count = 1; }
-	coyote_jump_timer --;
-	coyote_hang_timer = 0;
+	coyote_jump_timer -= 1;
+	//coyote_hang_timer = 0;
 }
 
 // Initialize Jump
@@ -88,14 +88,14 @@ if(input_jump_buffered && jump_count < jump_max){
 	input_jump_buffer_timer = 0;
 	
 	// Increase the jumps
-	jump_count ++;
+	jump_count += 1;
 	
 	// Set the jump timer 
 	jump_hold_timer = jump_hold_frames[jump_count-1];
 	
 	// Tell ourself we're no longer on the ground
 	scr_set_on_ground(false);
-	coyote_jump_timer = 0;
+	//coyote_jump_timer = 0;
 }
 
 // Cut the Jump
@@ -109,7 +109,7 @@ if(!input_jump){
 if(jump_hold_timer > 0){
 	// Constantly set Yspeed to the jumping speed
 	yspd = jspd[jump_count-1];
-	jump_hold_timer --;
+	jump_hold_timer -= 1;
 } else {
 	fall = lerp(fall, fallspd, fallacc); 
 }
@@ -124,13 +124,13 @@ if(yspd < 0 && place_meeting(x, y + yspd, par_solid)){
 	
 	// Slide Upleft to slope	
 	if( movedir == 0 && !place_meeting(x - abs(yspd)-1, y + yspd, par_solid)){
-		while (place_meeting(x, y + yspd, par_solid)){ x --; }
+		while (place_meeting(x, y + yspd, par_solid)){ x -= 1; }
 		_slope_slide = true;
 	}
 	
 	// Slide UpRight to slope	
 	if(movedir == 0 && !place_meeting(x+abs(yspd)+1, y+yspd, par_solid)){
-		while (place_meeting(x, y+yspd, par_solid)){ x ++; }
+		while (place_meeting(x, y+yspd, par_solid)){ x += 1; }
 		_slope_slide = true;
 	}
 	
@@ -149,7 +149,7 @@ if(yspd < 0 && place_meeting(x, y + yspd, par_solid)){
 	}
 }
 
-// Downwards Collisions
+/* Downwards Collisions
 if(yspd >= 0){
 	if(place_meeting(x, y+yspd, par_solid)){
 		// Scoot up to the wall precicelly
@@ -168,7 +168,72 @@ if(yspd >= 0){
 	if(place_meeting(x, y+1, par_solid)){
 		scr_set_on_ground(true);
 	}
+} */
+
+/// Floor Y Collision
+
+// Check for solid and semisolid platforms under me
+var _clamp_yspd = max( 0, yspd);
+var _list = ds_list_create();
+var _array = array_create(0);
+array_push (_array, par_solid, par_semisolid_wall);
+
+// Do the actual check and add objects to list
+var _list_size = instance_place_list( x, y+1 + _clamp_yspd + move_plat_max_yspd, _array, _list, false);
+ 
+// Loop trought the colliding instances and only return one if it's top is bellow the player
+for(var i = 0; i < _list_size; i++){
+	// Get an instance of par_solid or par_semisolid from the list
+	var _list_inst = _list[| i];
+
+	// Stop the Magnetism
+	if( (_list_inst.yspd <= yspd || instance_exists(my_floor_plat))
+	&& (_list_inst.yspd > 0 || place_meeting(x, y+1 + _clamp_yspd, _list_inst)) )
+	{
+		// Return a solid wall or any semisolid walls that are below the player
+		if(_list_inst.object_index == par_solid
+		|| object_is_ancestor(_list_inst.object_index, par_solid)
+		|| floor(bbox_bottom) <= ceil(_list_inst.bbox_top - _list_inst.yspd))
+		{
+			// Return the "highest" wall object	
+			if(!instance_exists(my_floor_plat)
+			|| _list_inst.bbox_top + _list_inst.yspd <= my_floor_plat.bbox_top + my_floor_plat.yspd
+			|| _list_inst.bbox_top + _list_inst.yspd <= bbox_bottom){
+				my_floor_plat = _list_inst;
+			}
+		}
+	}
 }
+
+// Destroy the DS List
+ds_list_destroy(_list);
+
+// One last check to make sure the floor platform is actually below us
+if(instance_exists(my_floor_plat) && !place_meeting( x, y + move_plat_max_yspd, my_floor_plat)){
+	my_floor_plat = noone;
+}
+
+// Land on the ground platform if there is one
+if(instance_exists(my_floor_plat)){
+	// Scoot up to our wall precisely
+	var _subpixel = .5;
+	while(!place_meeting(x, y + _subpixel, my_floor_plat) && !place_meeting(x, y, par_solid)){ y += _subpixel; }
+
+	// Make sure we don't end up below the top of a semisolid
+	if(my_floor_plat.object_index == par_semisolid_wall || object_is_ancestor(my_floor_plat.object_index, par_semisolid_wall)){
+		while( place_meeting(x, y, my_floor_plat) ){ y -= _subpixel; }
+	}
+
+	// Floor the Y variable
+	y = floor(y);
+
+	// Collide with the ground
+	yspd = 0;
+	scr_set_on_ground(true);	
+}
+
+// Fix the can Jump
+if(input_jump_pressed){ my_floor_plat = noone; }
 
 // Move Y
 y += yspd;
