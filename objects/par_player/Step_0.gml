@@ -118,13 +118,13 @@ if(jump_hold_timer > 0){
 var _subpixel = 0.5; 
 
 // Upwards Y Collisions (With a Ceilin Slopes)
-if(yspd < 0 && place_meeting(x, y+yspd, par_solid)){
+if(yspd < 0 && place_meeting(x, y + yspd, par_solid)){
 	/// Jump into the slope Ceilings
 	var _slope_slide = false;
 	
 	// Slide Upleft to slope	
-	if(abs(xspd) < .6 && !place_meeting(x-abs(yspd)-1, y+yspd, par_solid)){
-		while (place_meeting(x, y+yspd, par_solid)){ x --; }
+	if( movedir == 0 && !place_meeting(x - abs(yspd)-1, y + yspd, par_solid)){
+		while (place_meeting(x, y + yspd, par_solid)){ x --; }
 		_slope_slide = true;
 	}
 	
@@ -138,12 +138,11 @@ if(yspd < 0 && place_meeting(x, y+yspd, par_solid)){
 	if(!_slope_slide){
 		// Scoot up to the wall precicelly
 		var _pixelcheck = _subpixel * sign(yspd);
-		while(!place_meeting(x, y+_pixelcheck, par_solid)){
+		while(!place_meeting(x, y + _pixelcheck, par_solid)){
 			y += _pixelcheck; 
 		}
 	
-		// Bonk State 
-		if(yspd < 0){ jump_hold_timer = 0;}
+		// Bonk State [OPTIONAL] if(yspd < 0){ jump_hold_timer = 0;}
 	
 		// Set yspd to 0 to collide
 		yspd = 0;

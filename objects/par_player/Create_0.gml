@@ -52,3 +52,7 @@ coyote_hang_timer  = 0;
 // Jump buffer timer
 coyote_jump_frames = 12;
 coyote_jump_timer  = 0;
+
+// Moving Platforms
+my_floor_plat = noone;
+move_plat_xspd = 0;
