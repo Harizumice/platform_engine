@@ -45,9 +45,21 @@ if(place_meeting(x + xspd, y, par_solid)){
 }
 
 // Go Down Slopes
-if(yspd >= 0 && !place_meeting(x + xspd, y+1, par_solid) && place_meeting(x + xspd, y + abs(xspd)+1, par_solid)){
-	while (!place_meeting(x+xspd, y+_subpixel, par_solid)){ y += _subpixel; }
+down_slope_semisolid = noone;
+if(yspd >= 0 && !place_meeting(x + xspd, y + 1, par_solid) && place_meeting(x + xspd, y + abs(xspd)+1, par_solid) ){
+	// Check for a semisolid in the way
+	down_slope_semisolid = scr_check_for_semisolid_platform(x + xspd, y + abs(xspd)+1);
+	
+	// Precisely mode down slope if there isn;t a semisolid in the way
+	if(!instance_exists(down_slope_semisolid)){
+		while(!place_meeting(x + xspd, y + _subpixel, par_solid)){ y += _subpixel; }
+	}
 }
+
+/* if(yspd >= 0 && !place_meeting(x + xspd, y+1, par_solid) && place_meeting(x + xspd, y + abs(xspd)+1, par_solid)){
+	while (!place_meeting(x+xspd, y+_subpixel, par_solid)){ y += _subpixel; }
+}*/
+
 
 // Move X
 x += xspd;
@@ -208,6 +220,9 @@ for(var i = 0; i < _list_size; i++){
 // Destroy the DS List
 ds_list_destroy(_list);
 
+// Downslope semisolid for making sure we don't miss semisolid's while going down slopes
+if(instance_exists(down_slope_semisolid)){ my_floor_plat = down_slope_semisolid; }
+
 // One last check to make sure the floor platform is actually below us
 if(instance_exists(my_floor_plat) && !place_meeting( x, y + move_plat_max_yspd, my_floor_plat)){
 	my_floor_plat = noone;
@@ -231,9 +246,6 @@ if(instance_exists(my_floor_plat)){
 	yspd = 0;
 	scr_set_on_ground(true);	
 }
-
-// Fix the can Jump
-if(input_jump_pressed){ my_floor_plat = noone; }
 
 // Move Y
 y += yspd;

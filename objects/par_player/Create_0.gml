@@ -1,6 +1,7 @@
 /// @description Variables
 
-function scr_set_on_ground(_val = true){
+function scr_set_on_ground(_val = true)
+{
 	if(_val){
 		ground = true;
 		coyote_hang_timer = coyote_hang_frames;
@@ -9,6 +10,35 @@ function scr_set_on_ground(_val = true){
 		my_floor_plat = noone; 
 		coyote_hang_timer = 0;
 	}
+}
+
+function scr_check_for_semisolid_platform(_x, _y)
+{
+	// Create Returnable Variable
+	var _return = noone;
+
+	// we must not be moving upwards, and then we check for a normal collision
+	if(yspd >= 0 && place_meeting(_x, _y, par_semisolid_wall)){
+		// Create a DS list to store all colliding instances of semisolidwall
+		var _list = ds_list_create();
+		var _list_size = instance_place_list(_x, _y, par_semisolid_wall, _list, false);
+
+		// Loop trough the colliding instances and only return one of it's top is below the player
+		for(var i = 0; i < _list_size; i ++){
+			var _list_inst = _list[| i];
+			if(floor(bbox_bottom) <= ceil(_list_inst.bbox_top - _list_inst.yspd)){
+				// Return the id of a semisolid platform
+				_return = _list_inst;
+
+				// Exit the loop early
+				i = _list_size;
+			}
+		}
+
+	}
+
+	// Return our variable
+	return _return;
 }
 
 // Setup Controls
@@ -48,7 +78,7 @@ fallspd		     = 2.4;	   // Max Multiply Vertical speed
 fallacc		     = 0.16;    // Acceleration Vertical speed
 
 // Coyote time
-coyote_hang_frames = 8;
+coyote_hang_frames = 4;
 coyote_hang_timer  = 0;
 
 // Jump buffer timer
@@ -59,3 +89,4 @@ coyote_jump_timer  = 0;
 my_floor_plat = noone;
 move_plat_xspd = 0;
 move_plat_max_yspd = termvel; // How to fast can the player follow a downwards moving platforms
+down_slope_semisolid = noone;

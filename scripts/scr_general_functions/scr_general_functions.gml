@@ -1,5 +1,5 @@
 function scr_control_setup(){
-	buffer_time             = 14;
+	buffer_time             = 16;
 	input_jump_buffered     = 0;
 	input_jump_buffer_timer = 0;
 }

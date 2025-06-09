@@ -17,7 +17,7 @@ var _camy = target.y - _camheight/2;
 
 // Constrain cam to room borders
 _camx = clamp(_camx, 0, room_width - _camwidth);
-_camy = clamp(_camy, 0, room_width - _camheight);
+_camy = clamp(_camy, 0, room_height - _camheight);
 
 // Set cam coordinate variables
 final_cam_x += (_camx-final_cam_x) * cam_trail_spd_x;
